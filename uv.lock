@@ -306,7 +306,7 @@ wheels = [
 ]
 
 [[package]]
-name = "test-algo"
+name = "sort-visualizer"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

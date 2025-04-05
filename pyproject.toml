@@ -1,5 +1,5 @@
 [project]
-name = "Sort-Visualizer"
+name = "sort-visualizer"
 version = "0.1.0"
 description = "..."
 authors = [{ name = "RogelioKG", email = "rogeliokg0813@gmail.com" }]
