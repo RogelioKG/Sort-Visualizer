@@ -167,7 +167,7 @@ class SortingVisualizer:
         self.fps = fps
         self.fig = plt.figure(figsize=figsize)
         self.sorting_axes: list[SortingAx] = []
-        self.end_signal = self._end_signal()
+        self._end_signal_generator = self._end_signal()
         self._setup_figure()
 
     def add_sorting_ax(self, algo: sort.SortingAlgorithm, *, index: int) -> None:
@@ -198,25 +198,25 @@ class SortingVisualizer:
 
     def animation_start(self) -> None:
         """根據呈現模式，開始運行動畫"""
+        common_kwargs = {
+            "fig": self.fig,
+            "func": self._update,
+            "interval": 1000 / self.fps,
+            "blit": True,
+        }
         if self.mode == VisualizerMode.RUN:
             ani = animation.FuncAnimation(
-                self.fig,
-                func=self._update,
                 frames=1,
-                interval=1000 / self.fps,
-                blit=True,
                 repeat=True,
+                **common_kwargs,
             )
             plt.show()
         elif self.mode == VisualizerMode.SAVE:
             try:
                 ani = animation.FuncAnimation(
-                    self.fig,
-                    func=self._update,
-                    frames=self.end_signal,
-                    interval=1000 / self.fps,
+                    frames=self._end_signal_generator,
                     cache_frame_data=False,
-                    blit=True,
+                    **common_kwargs,
                 )
                 ani.save("sorting.gif", fps=self.fps, dpi=200)
             except StopIteration:
@@ -260,19 +260,19 @@ class SortingVisualizer:
         self.fig.subplots_adjust(hspace=0.3, wspace=0.1)
 
     def _end_signal(self) -> Generator[Literal[1], None, None]:
-        """生成結束信號的產生器
+        """發出結束訊號 (`StopIteration`) 的產生器
 
         Returns
         -------
         Generator[Literal[1], None, None]
-            一個簡單的產生器，每次返回 1，直到收到結束訊號
+            一個簡單的產生器，每次皆返回 1，直到 `send(True)` 為止
         """
         # 被使用於 `VisualizerMode.SAVE` 模式，
         # 由於在保存動畫時，matplotlib 是根據指定的 frames 來決定要產生多少幀。
-        # 為了讓它聰明地自己停下來，這裡使用了一個神秘小技巧：
-        # 利用 frames 也可以傳入產生器、StopIteration 會停止動畫的特性，
-        # 讓更新函數 _update 握有結束訊號，
-        # 直到所有排序都進入完成階段後，發出結束訊號，強迫動畫停止。
+        # 為了讓其自行判斷停下的位置，此處使用一個神奇小技巧：
+        # 利用 frames 也可傳入產生器且 `StopIteration` 會停止動畫的特性，
+        # 讓更新函數 _update 握有此產生器，直到所有排序都進入完成階段後，
+        # 使用 `send(True)` 讓此產生器發出結束訊號，強迫動畫停止。
         end = False
         while not end:
             end = yield 1
@@ -282,4 +282,4 @@ class SortingVisualizer:
         if self.mode == VisualizerMode.RUN:
             plt.close(self.fig)
         elif self.mode == VisualizerMode.SAVE:
-            self.end_signal.send(True)  # 發出結束訊號
+            self._end_signal_generator.send(True)  # 發出結束訊號
