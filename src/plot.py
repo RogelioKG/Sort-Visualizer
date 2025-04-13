@@ -92,6 +92,8 @@ class SortingAx:
 
     def sorting_state_next_step(self) -> None:
         """SORTING 階段時，應執行的下一步"""
+        assert self.state == AxState.SORTING
+
         try:
             updated_values = next(self.algo.step_generator)  # 變動值的產出
         except StopIteration:
@@ -108,12 +110,16 @@ class SortingAx:
 
     def sorted_state_next_step(self) -> None:
         """SORTED 階段時，應執行的下一步"""
+        assert self.state == AxState.SORTED
+
         self.set_focus_bar_color(BarState.INACTIVE)
         self.clear_focus_bars()
         self.state = AxState.PENDING
 
     def pending_state_next_step(self) -> None:
         """PENDING 階段時，應執行的下一步"""
+        assert self.state == AxState.PENDING
+
         if self.counter >= len(self.bar_artists):
             self.set_focus_bar_color(BarState.INACTIVE)
             self.clear_focus_bars()
