@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Literal
 
 from matplotlib import animation, style, ticker
@@ -18,13 +18,13 @@ def init() -> None:
 class AxState(Enum):
     """坐標軸狀態"""
 
-    SORTING = "sorting"  # 排序中階段 (SORTING 階段)
-    SORTED = "sorted"  # 排序完成階段 (SORTED 階段)
-    PENDING = "pending"  # 結束動畫階段 (PENDING 階段)
-    COMPLETE = "complete"  # 完成階段 (COMPLETE 階段)
+    SORTING = 1  # 排序中階段 (SORTING 階段)
+    SORTED = 2  # 排序完成階段 (SORTED 階段)
+    PENDING = 3  # 結束動畫階段 (PENDING 階段)
+    COMPLETE = 4  # 完成階段 (COMPLETE 階段)
 
 
-class BarState(Enum):
+class BarState(StrEnum):
     """bar 狀態 (注意：值代表顏色)"""
 
     INACTIVE = "silver"  # 未變動的元素的顏色
